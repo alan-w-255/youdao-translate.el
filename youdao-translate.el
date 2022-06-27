@@ -29,6 +29,7 @@
   (interactive "sInput a word: ")
   (youdao-online-translate word))
 
+;; TODO: 对于长句子, 格式化的方法需要调整
 (defun show-translate-result (basic-data)
   (when (not basic-data)
       (error "Not found"))
@@ -57,7 +58,10 @@
 	 (from "auto")
 	 (to "auto")
 	 (curtime (time-convert (current-time) 'integer))
-	 (signStr (format "%s%s%s%s%s" appid word salt curtime appsecret))
+	 (inputStr (if (> (string-width word) 20)
+		       (format "%s%d%s" (substring word 0 10) (string-width word) (substring word -10))
+		     word))
+	 (signStr (format "%s%s%s%s%s" appid inputStr salt curtime appsecret))
 	 (sign (secure-hash 'sha256 signStr))
 	 (url-request-method "POST")
 	 (url-request-extra-headers `(("Content-Type: application/x-www-form-urlencoded; charset=utf-8")))
