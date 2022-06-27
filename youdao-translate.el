@@ -52,10 +52,18 @@
     (buffer-string)))
 
 (defun youdao-online-translate (word)
-  (let* ((api-url (format "http://fanyi.youdao.com/openapi.do?keyfrom=%s&key=%s&version=1.1&doctype=json&type=data&q=%s"
-                          youdao-api-keyfrom
-                          youdao-api-key
-                          word))
+  (let* ((api-url "http://openapi.youdao.com/api")
+	 (salt (random t))
+	 (from "auto")
+	 (to "auto")
+	 (curtime (time-convert (current-time) 'integer))
+	 (signStr (format "%s%s%s%s%s" appid word salt curtime appsecret))
+	 (sign (secure-hash 'sha256 signStr))
+	 (url-request-method "POST")
+	 (url-request-extra-headers `(("Content-Type: application/x-www-form-urlencoded; charset=utf-8")))
+	 (url-request-data
+	  (url-encode-url (format "q=%s&from=%s&to=%s&appKey=%s&salt=%s&sign=%s&signType=v3&curtime=%s"
+		  word from to appid salt sign curtime)))
          (url-data (decode-coding-string (url->content api-url) 'utf-8))
          (json-data (json-read-from-string url-data)))
     (show-translate-result (cdr (assoc 'basic json-data)))))
