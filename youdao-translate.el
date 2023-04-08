@@ -1,6 +1,4 @@
-;;; --- -*- lexical-binding: t; -*-
-;;; A Emacs plugin for using Youdao Translate API
-;; youdao-translate.el ---
+;; youdao-translate.el ---  A Emacs plugin for using Youdao Translate API -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2014  lu4nx
 
@@ -11,6 +9,8 @@
 ;; License: GPLv3
 ;; Keywords: elisp, youdao, translate
 
+
+;;; Commentary:
 
 ;;; Code:
 
