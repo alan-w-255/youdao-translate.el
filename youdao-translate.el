@@ -50,10 +50,10 @@
 	 (princ (format "英式发音：%s\n美式发音：%s\n"
 			(cdr (assoc 'uk-phonetic basic-data))
 			(cdr (assoc 'us-phonetic basic-data)))))
-       (princ "基本释义：\n")
+       (princ "基本释义:")
        (cl-loop for explain across (cdr (assoc 'explains basic-data))
 		do
-		(princ (format "%s\n" explain)))))))
+		(princ (format "\n%s" explain)))))))
 
 (defun url->content (url)
   (with-current-buffer
