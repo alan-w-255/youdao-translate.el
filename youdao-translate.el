@@ -16,6 +16,7 @@
 
 (require 'cl)
 (require 'json)
+(require 'url)
 
 (defcustom youdao-translate-show-phonetic t
   "Show phonetic symbol or not."
