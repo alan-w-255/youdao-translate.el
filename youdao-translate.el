@@ -1,3 +1,4 @@
+;;; --- -*- lexical-binding: t; -*-
 ;;; A Emacs plugin for using Youdao Translate API
 ;; youdao-translate.el ---
 
@@ -16,32 +17,42 @@
 (require 'cl)
 (require 'json)
 
-(defun youdao-translate-word ()
-  "查询被mark的单词"
+(defcustom youdao-translate-show-phonetic t
+  "Show phonetic symbol or not."
+  :type 'boolean)
+
+(defun youdao-translate-region ()
+  "查询被选中的单词"
   (interactive)
-  (let* ((mark-pos (mark))
-         (point-pos (point))
-         (word (buffer-substring-no-properties mark-pos point-pos)))
-    (youdao-online-translate word)))
+  (when (use-region-p)
+    (let ((word (buffer-substring-no-properties (use-region-beginning) (use-region-end))))
+      (youdao-online-translate word))))
 
 (defun youdao-input->translate (word)
-  "查询用户输入的单词"
+  "查询用户输入的单词."
   (interactive "sInput a word: ")
   (youdao-online-translate word))
 
-;; TODO: 对于长句子, 格式化的方法需要调整
-(defun show-translate-result (basic-data)
-  (when (not basic-data)
-      (error "Not found"))
-  (message
-   (with-output-to-string
-     (princ (format "英式发音：%s\n美式发音：%s\n"
-                    (cdr (assoc 'uk-phonetic basic-data))
-                    (cdr (assoc 'us-phonetic basic-data))))
-     (princ "基本释义：\n")
-     (loop for explain across (cdr (assoc 'explains basic-data))
-           do
-           (princ (format "%s\n" explain))))))
+(defun show-translate-result (json-data)
+  "显示翻译结果."
+  (when (equal (cdr (assoc 'isWord json-data)) :json-false)
+    (message (with-output-to-string
+	       (princ "翻译:")
+	       (cl-loop for translation across (cdr (assoc 'translation json-data))
+			do
+			(princ (format "\n%s" translation))))))
+
+  (when-let ((basic-data (cdr (assoc 'basic json-data))))
+    (message
+     (with-output-to-string
+       (when youdao-translate-show-phonetic
+	 (princ (format "英式发音：%s\n美式发音：%s\n"
+			(cdr (assoc 'uk-phonetic basic-data))
+			(cdr (assoc 'us-phonetic basic-data)))))
+       (princ "基本释义：\n")
+       (cl-loop for explain across (cdr (assoc 'explains basic-data))
+		do
+		(princ (format "%s\n" explain)))))))
 
 (defun url->content (url)
   (with-current-buffer
@@ -67,10 +78,24 @@
 	 (url-request-extra-headers `(("Content-Type: application/x-www-form-urlencoded; charset=utf-8")))
 	 (url-request-data
 	  (url-encode-url (format "q=%s&from=%s&to=%s&appKey=%s&salt=%s&sign=%s&signType=v3&curtime=%s"
-		  word from to appid salt sign curtime)))
+				  word from to appid salt sign curtime)))
          (url-data (decode-coding-string (url->content api-url) 'utf-8))
          (json-data (json-read-from-string url-data)))
-    (show-translate-result (cdr (assoc 'basic json-data)))))
+    (show-translate-result json-data)))
+
+(defun youdao-translate-at-point ()
+  "查询光标下的单词."
+  (interactive)
+  (let ((word (thing-at-point 'word))
+	(youdao-translate-show-phonetic nil))
+    (message (youdao-online-translate word))))
+
+(defun youdao-translate ()
+  "查询光标下的单词或者被选中的句子."
+  (interactive)
+  (if (use-region-p)
+      (youdao-translate-region)
+    (youdao-translate-at-point)))
 
 (provide 'youdao-translate)
 
