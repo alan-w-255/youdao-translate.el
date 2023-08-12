@@ -86,14 +86,15 @@
   "查询光标下的单词."
   (interactive)
   (let ((word (thing-at-point 'word)))
-    (message (youdao-online-translate word))))
+    (youdao-online-translate word)))
 
 (defun youdao-translate ()
   "查询光标下的单词或者被选中的句子."
   (interactive)
-  (if (use-region-p)
-      (youdao-translate-region)
-    (message (youdao-translate-at-point))))
+  (message
+   (if (use-region-p)
+       (youdao-translate-region)
+     (youdao-translate-at-point))))
 
 (provide 'youdao-translate)
 
