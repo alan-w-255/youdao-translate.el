@@ -36,24 +36,22 @@
 
 (defun show-translate-result (json-data)
   "显示翻译结果."
-  (when (equal (cdr (assoc 'isWord json-data)) :json-false)
-    (message (with-output-to-string
-	       (princ "翻译:")
-	       (cl-loop for translation across (cdr (assoc 'translation json-data))
-			do
-			(princ (format "\n%s" translation))))))
-
-  (when-let ((basic-data (cdr (assoc 'basic json-data))))
-    (message
-     (with-output-to-string
-       (when youdao-translate-show-phonetic
-	 (princ (format "英式发音：%s\n美式发音：%s\n"
-			(cdr (assoc 'uk-phonetic basic-data))
-			(cdr (assoc 'us-phonetic basic-data)))))
-       (princ "基本释义:")
-       (cl-loop for explain across (cdr (assoc 'explains basic-data))
-		do
-		(princ (format "\n%s" explain)))))))
+  (if (equal (cdr (assoc 'isWord json-data)) :json-false)
+      (with-output-to-string
+	(princ "翻译:")
+	(cl-loop for translation across (cdr (assoc 'translation json-data))
+		 do
+		 (princ (format "\n%s" translation))))
+    (when-let ((basic-data (cdr (assoc 'basic json-data))))
+      (with-output-to-string
+	(when youdao-translate-show-phonetic
+	  (princ (format "英式发音：%s\n美式发音：%s\n"
+			 (cdr (assoc 'uk-phonetic basic-data))
+			 (cdr (assoc 'us-phonetic basic-data)))))
+	(princ "基本释义:")
+	(cl-loop for explain across (cdr (assoc 'explains basic-data))
+		 do
+		 (princ (format "\n%s" explain)))))))
 
 (defun url->content (url)
   (with-current-buffer
@@ -95,7 +93,7 @@
   (interactive)
   (if (use-region-p)
       (youdao-translate-region)
-    (youdao-translate-at-point)))
+    (message (youdao-translate-at-point))))
 
 (provide 'youdao-translate)
 
