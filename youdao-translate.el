@@ -87,8 +87,7 @@
 (defun youdao-translate-at-point ()
   "查询光标下的单词."
   (interactive)
-  (let ((word (thing-at-point 'word))
-	(youdao-translate-show-phonetic nil))
+  (let ((word (thing-at-point 'word)))
     (message (youdao-online-translate word))))
 
 (defun youdao-translate ()
