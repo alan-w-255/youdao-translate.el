@@ -22,13 +22,6 @@
   "Show phonetic symbol or not."
   :type 'boolean)
 
-(defun youdao-translate-region ()
-  "查询被选中的单词"
-  (interactive)
-  (when (use-region-p)
-    (let ((word (buffer-substring-no-properties (use-region-beginning) (use-region-end))))
-      (youdao-online-translate word))))
-
 (defun youdao-input->translate (word)
   "查询用户输入的单词."
   (interactive "sInput a word: ")
@@ -81,6 +74,13 @@
          (url-data (decode-coding-string (url->content api-url) 'utf-8))
          (json-data (json-read-from-string url-data)))
     (show-translate-result json-data)))
+
+(defun youdao-translate-region ()
+  "查询被选中的单词"
+  (interactive)
+  (when (use-region-p)
+    (let ((word (buffer-substring-no-properties (use-region-beginning) (use-region-end))))
+      (youdao-online-translate word))))
 
 (defun youdao-translate-at-point ()
   "查询光标下的单词."
